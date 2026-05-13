@@ -124,6 +124,35 @@ Derivada zero em `t=0` e `t=1` — partida e parada sem jerk, simulando a respos
 
 ---
 
+## Debug serial
+
+Para habilitar saída diagnóstica via UART, descomentar em `include/globals.h`:
+
+```cpp
+#define DEBUG_SERIAL
+```
+
+Conectar um adaptador USB-Serial (FTDI) ao ATmega324P e monitorar:
+
+```bash
+platformio device monitor --baud 115200
+```
+
+**Saída de exemplo:**
+```
+=== RBAR Debug Serial ===
+Firmware: 0.2.0
+I2C addr: 0x10
+Geometria (mm): Coxa=50 Femur=80 Tibia=100
+[IK] target=(120.0,0.0,-80.0) -> coxa=0.0 femur=-23.4 tibia=67.8
+[FK] coxa=0.0 femur=-23.4 tibia=67.8 -> (120.00,0.00,-80.01)
+[t=1200ms] coxa=0.0 femur=-23.4 tibia=67.8 done=1
+```
+
+O `debug_fk_verify` valida o round-trip `FK(IK(pos)) ≈ pos` — erro < 0.1 mm confirma que a cinemática está correta.
+
+---
+
 ## Build e gravação
 
 ```bash
@@ -172,8 +201,8 @@ Editar `include/globals.h` para ajustar a geometria real da perna:
 - [x] Interpolação de trajetória (smootherstep)
 - [x] Controle de servos PWM
 - [x] Protocolo I2C slave
-- [ ] Cinemática direta (`fk_solve`) para validação
-- [ ] Módulo de debug serial
+- [x] Cinemática direta (`fk_solve`) para validação
+- [x] Módulo de debug serial (ativado por `#define DEBUG_SERIAL`)
 - [ ] Testes em hardware
 - [ ] Suporte a múltiplas pernas (endereços I2C configuráveis)
 - [ ] Gerador de padrões de marcha (gait patterns)

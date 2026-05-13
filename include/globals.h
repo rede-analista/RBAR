@@ -1,7 +1,10 @@
 #pragma once
 #include <stdint.h>
 
-#define FIRMWARE_VERSION "0.1.0"
+#define FIRMWARE_VERSION "0.2.0"
+
+// Descomentar para habilitar saída de debug via UART (115200 baud)
+// #define DEBUG_SERIAL
 #define I2C_ADDRESS      0x10
 
 // Geometria da perna (mm)

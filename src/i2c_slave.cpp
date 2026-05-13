@@ -1,6 +1,7 @@
 #include "i2c_slave.h"
 #include "kinematics.h"
 #include "trajectory.h"
+#include "debug_serial.h"
 #include <Wire.h>
 #include <string.h>
 
@@ -60,7 +61,10 @@ void i2c_process() {
 
                 Vec3_t pos = {x, y, z};
                 JointAngles_t angles;
-                if (ik_solve(&pos, &angles)) {
+                bool ok = ik_solve(&pos, &angles);
+                debug_ik_result(&pos, &angles, ok);
+                if (ok) {
+                    debug_fk_verify(&angles);
                     trajectory_set_target(&angles, i2c_speed);
                     i2c_target_pos = pos;
                 }

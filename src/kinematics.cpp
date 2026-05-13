@@ -44,6 +44,25 @@ bool ik_solve(const Vec3_t *target, JointAngles_t *out) {
     return true;
 }
 
+void fk_solve(const JointAngles_t *angles, Vec3_t *out) {
+    float t1 = angles->coxa_deg  * (M_PI / 180.0f);
+    float t2 = angles->femur_deg * (M_PI / 180.0f);
+    float t3 = angles->tibia_deg * (M_PI / 180.0f);
+
+    // Direção da tíbia no plano 2D (r, h): θ2 + θ3
+    float tibia_dir = t2 + t3;
+
+    // Posição do pé no plano 2D relativo ao pivot do fêmur
+    float r_foot = FEMUR_LEN * cosf(t2) + TIBIA_LEN * cosf(tibia_dir);
+    float h_foot = FEMUR_LEN * sinf(t2) + TIBIA_LEN * sinf(tibia_dir);
+
+    // De volta ao espaço 3D
+    float r_total = COXA_LEN + r_foot;
+    out->x = r_total * cosf(t1);
+    out->y = r_total * sinf(t1);
+    out->z = -h_foot; // h positivo = abaixo do corpo; z negativo = abaixo
+}
+
 void ik_clamp(JointAngles_t *a) {
     auto clamp = [](float v, float lo, float hi) {
         return v < lo ? lo : (v > hi ? hi : v);
