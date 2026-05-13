@@ -195,6 +195,54 @@ Editar `include/globals.h` para ajustar a geometria real da perna:
 
 ---
 
+## Endereço I2C configurável
+
+O endereço I2C é definido por hardware através de 3 pinos (PB4, PB5, PB6) com pull-up interno. Um jumper conectado ao GND define o bit como `1`; pino aberto = bit `0`.
+
+| PB6 | PB5 | PB4 | Endereço | Perna sugerida |
+|-----|-----|-----|----------|----------------|
+| 0 | 0 | 0 | 0x10 | Frente-Esquerda |
+| 0 | 0 | 1 | 0x11 | Frente-Direita |
+| 0 | 1 | 0 | 0x12 | Meio-Esquerda |
+| 0 | 1 | 1 | 0x13 | Meio-Direita |
+| 1 | 0 | 0 | 0x14 | Trás-Esquerda |
+| 1 | 0 | 1 | 0x15 | Trás-Direita |
+
+## Padrões de marcha (Gait)
+
+O módulo de marcha gera ciclos autônomos de movimento sem intervenção do mestre após o `GAIT_START`.
+
+**Fases do ciclo:**
+
+```
+Fase de apoio (stance, 0→duty_cycle):
+  pé no chão, move linearmente da frente para trás
+
+Fase de balanço (swing, duty_cycle→1.0):
+  pé levantado, arco sinusoidal de trás para frente
+  z = ground_z - step_height × sin(π × t_swing)
+```
+
+**Parâmetros configuráveis via `CMD_GAIT_SET`:**
+
+| Campo | Padrão | Descrição |
+|-------|--------|-----------|
+| `neutral_x` | 120 mm | Posição X neutra da perna |
+| `neutral_y` | 0 mm | Offset lateral |
+| `ground_z` | -80 mm | Altura do chão |
+| `step_length` | 60 mm | Comprimento do passo |
+| `step_height` | 30 mm | Altura do levantamento do pé |
+| `period_ms` | 1000 ms | Duração de um ciclo completo |
+| `phase` | 0.0 | Offset de fase (0.0–1.0) para sincronizar pernas |
+| `duty_cycle` | 0.6 | Fração do ciclo em apoio |
+
+O campo `phase` permite que o mestre envie parâmetros diferentes para cada perna e coordene uma marcha hexápode (tripod, wave, ripple).
+
+**Resposta ao STATUS (14 bytes):**
+```
+coxa_deg(4) + femur_deg(4) + tibia_deg(4) + move_done(1) + gait_active(1)
+```
+
 ## Roadmap
 
 - [x] Cinemática inversa analítica
@@ -204,8 +252,8 @@ Editar `include/globals.h` para ajustar a geometria real da perna:
 - [x] Cinemática direta (`fk_solve`) para validação
 - [x] Módulo de debug serial (ativado por `#define DEBUG_SERIAL`)
 - [ ] Testes em hardware
-- [ ] Suporte a múltiplas pernas (endereços I2C configuráveis)
-- [ ] Gerador de padrões de marcha (gait patterns)
+- [x] Suporte a múltiplas pernas (endereço I2C por jumper, 0x10–0x17)
+- [x] Gerador de padrões de marcha (stance + swing sinusoidal, phase offset)
 
 ---
 
