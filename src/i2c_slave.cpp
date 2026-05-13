@@ -7,9 +7,9 @@
 #include <Wire.h>
 #include <string.h>
 
-volatile I2C_Command_t i2c_last_cmd   = CMD_NONE;
-volatile Vec3_t        i2c_target_pos = {0.0f, 0.0f, -100.0f};
-volatile uint8_t       i2c_speed      = 128;
+I2C_Command_t i2c_last_cmd   = CMD_NONE;
+Vec3_t        i2c_target_pos = {0.0f, 0.0f, -100.0f};
+uint8_t       i2c_speed      = 128;
 
 static uint8_t rx_buf[32];
 static uint8_t rx_len   = 0;
